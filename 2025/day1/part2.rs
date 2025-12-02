@@ -25,19 +25,22 @@ fn main() -> io::Result<()> {
     let mut pos = START_POSITION;
     let mut zero_count = 0;
 
-    let lines = read_lines("1.in")?;    
+    let lines = read_lines("input.txt")?;
 
     for line in lines.map_while(Result::ok) {
         if let Some((dir, steps)) = parse_rotation(&line) {
             pos = match dir {
-                'L' => (pos - steps + LOCK_SIZE) % LOCK_SIZE,
-                'R' => (pos + steps) % LOCK_SIZE,
-                _ => pos
+                'L' => {
+                    let temp = (LOCK_SIZE - pos) % LOCK_SIZE + steps;
+                    zero_count += temp / LOCK_SIZE;
+                    (LOCK_SIZE - (temp % LOCK_SIZE)) % LOCK_SIZE
+                },
+                'R' => {
+                    zero_count += (pos + steps) / LOCK_SIZE;
+                    (pos + steps) % LOCK_SIZE
+                },
+                _ => pos,
             };
-
-            if pos == 0 {
-                zero_count += 1;
-            }
         }
     }
 
